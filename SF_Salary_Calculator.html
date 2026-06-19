@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SF Take-Home & Savings Calculator</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f1117;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 30px 20px;
+  }
+  h1 {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #64748b;
+    font-size: 13px;
+    margin-bottom: 30px;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .card {
+    background: #1e2330;
+    border: 1px solid #2d3548;
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .card h2 {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #94a3b8;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #2d3548;
+  }
+  .field { margin-bottom: 14px; }
+  .field label {
+    display: block;
+    font-size: 12px;
+    color: #94a3b8;
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+  .field input, .field select {
+    width: 100%;
+    background: #0f1117;
+    border: 1px solid #2d3548;
+    border-radius: 7px;
+    color: #e2e8f0;
+    font-size: 14px;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .field input:focus, .field select:focus { border-color: #6366f1; }
+  .field input[type="range"] {
+    padding: 4px 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+  }
+  .field .hint {
+    font-size: 11px;
+    color: #475569;
+    margin-top: 3px;
+  }
+  .person-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .person-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+  }
+  .person-label.p1 { color: #818cf8; }
+  .person-label.p2 { color: #34d399; }
+
+  /* Expense rows */
+  .expense-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #1a2035;
+  }
+  .expense-row:last-child { border-bottom: none; }
+  .expense-label { font-size: 12px; color: #94a3b8; flex: 1; }
+  .expense-input {
+    width: 110px;
+    background: #0f1117;
+    border: 1px solid #2d3548;
+    border-radius: 6px;
+    color: #e2e8f0;
+    font-size: 13px;
+    padding: 5px 8px;
+    text-align: right;
+    outline: none;
+  }
+  .expense-input:focus { border-color: #6366f1; }
+
+  /* Summary cards */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .summary-card {
+    background: #0f1117;
+    border: 1px solid #2d3548;
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .summary-card.accent { border-color: #6366f1; background: #1a1d35; }
+  .summary-card.green  { border-color: #10b981; background: #0d2318; }
+  .summary-card.red    { border-color: #ef4444; background: #2a1010; }
+  .summary-card.orange { border-color: #f59e0b; background: #1f1a08; }
+  .summary-card .label {
+    font-size: 11px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 4px;
+  }
+  .summary-card .value {
+    font-size: 22px;
+    font-weight: 700;
+    color: #f8fafc;
+  }
+  .summary-card .sub {
+    font-size: 11px;
+    color: #475569;
+    margin-top: 3px;
+  }
+  .summary-card.accent .value { color: #a5b4fc; }
+  .summary-card.green  .value { color: #34d399; }
+  .summary-card.red    .value { color: #f87171; }
+  .summary-card.orange .value { color: #fbbf24; }
+
+  /* Tax breakdown table */
+  .breakdown-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .breakdown-table th {
+    text-align: left;
+    color: #475569;
+    font-weight: 600;
+    padding: 6px 8px;
+    border-bottom: 1px solid #2d3548;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .breakdown-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid #1a2035;
+    color: #cbd5e1;
+  }
+  .breakdown-table tr:last-child td { border-bottom: none; font-weight: 600; color: #e2e8f0; }
+  .breakdown-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .breakdown-table .pct { text-align: right; color: #64748b; }
+
+  /* Savings bar */
+  .savings-bar-wrap { margin-top: 14px; }
+  .savings-bar-wrap .bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #64748b;
+    margin-bottom: 5px;
+  }
+  .bar-bg {
+    height: 12px;
+    background: #1a2035;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #6366f1, #34d399);
+    transition: width 0.3s ease;
+  }
+
+  /* Toggle */
+  .toggle-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .toggle-btn {
+    flex: 1;
+    padding: 7px;
+    border-radius: 7px;
+    border: 1px solid #2d3548;
+    background: transparent;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .toggle-btn.active {
+    background: #6366f1;
+    border-color: #6366f1;
+    color: #fff;
+  }
+
+  .section-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #64748b;
+    margin: 16px 0 10px;
+  }
+
+  .note {
+    font-size: 11px;
+    color: #475569;
+    margin-top: 16px;
+    line-height: 1.6;
+    padding: 10px 12px;
+    background: #0f1117;
+    border-radius: 7px;
+    border-left: 3px solid #334155;
+  }
+
+  @media (max-width: 800px) {
+    .layout { grid-template-columns: 1fr; }
+    .summary-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<h1>SF Take-Home & Savings Calculator</h1>
+<p class="subtitle">Federal + California tax · FICA · SDI · SF cost of living · 2025 brackets</p>
+
+<div class="layout">
+  <!-- LEFT: Inputs -->
+  <div>
+    <div class="card" style="margin-bottom:16px">
+      <h2>Income</h2>
+
+      <div class="toggle-row">
+        <button class="toggle-btn active" id="btn-monthly" onclick="setView('monthly')">Monthly</button>
+        <button class="toggle-btn" id="btn-annual" onclick="setView('annual')">Annual</button>
+      </div>
+
+      <div class="person-row">
+        <div>
+          <div class="person-label p1">You (Sayantani)</div>
+          <div class="field">
+            <label>Annual Salary ($)</label>
+            <input type="number" id="sal1" value="200000" step="5000" onchange="calc()">
+          </div>
+        </div>
+        <div>
+          <div class="person-label p2">Husband</div>
+          <div class="field">
+            <label>Annual Salary ($)</label>
+            <input type="number" id="sal2" value="0" step="5000" onchange="calc()">
+            <div class="hint">Leave 0 if not working yet</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Filing Status</label>
+        <select id="filing" onchange="calc()">
+          <option value="mfj">Married Filing Jointly</option>
+          <option value="single">Single</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>401(k) Contribution — You ($ per year)</label>
+        <input type="number" id="k401_1" value="23500" step="500" onchange="calc()">
+        <div class="hint">2025 limit: $23,500 · reduces taxable income</div>
+      </div>
+
+      <div class="field">
+        <label>401(k) Contribution — Husband ($ per year)</label>
+        <input type="number" id="k401_2" value="0" step="500" onchange="calc()">
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Monthly Expenses — SF</h2>
+
+      <div class="field">
+        <label>Apartment Type</label>
+        <select id="apt_type" onchange="setRent()">
+          <option value="4200">2BR / 2BA (~$4,200/mo)</option>
+          <option value="3200">1BR / 1BA (~$3,200/mo)</option>
+          <option value="2500">Studio (~$2,500/mo)</option>
+          <option value="0">Custom (edit below)</option>
+        </select>
+      </div>
+
+      <div class="expense-row">
+        <span class="expense-label">🏠 Rent</span>
+        <input class="expense-input" id="exp_rent" type="number" value="4200" onchange="calc()">
+      </div>
+      <div class="expense-row">
+        <span class="expense-label">🛒 Groceries</span>
+        <input class="expense-input" id="exp_grocery" type="number" value="800" onchange="calc()">
+      </div>
+      <div class="expense-row">
+        <span class="expense-label">🍽️ Dining out</span>
+        <input class="expense-input" id="exp_dining" type="number" value="600" onchange="calc()">
+      </div>
+      <div class="expense-row">
+        <span class="expense-label">🚌 Transport (Muni/BART)</span>
+        <input class="expense-input" id="exp_transport" type="number" value="200" onchange="calc()">
+      </div>
+      <div class="expense-row">
+        <span class="expense-label">⚡ Utilities (gas/electric)</span>
+        <input class="expense-input" id="exp_utilities" type="number" value="150" onchange="calc()">
+      </div>
+      <div class="expense-row">
+        <span class="expense-label">🌐 Internet</span>
+        <input class="expense-input" id="exp_internet" type="number" value="80" onchange="calc()">
+      </div>
+      <div class="expense-row">
+        <span class="expense-label">📱 Phone (both)</span>
+        <input class="expense-input" id="exp_phone" type="number" value="120" onchange="calc()">
+      </div>
+      <div class="expense-row">
+        <span class="expense-label">🏥 Health insurance OOP</span>
+        <input class="expense-input" id="exp_health" type="number" value="300" onchange="calc()">
+      </div>
+      <div class="expense-row">
+        <span class="expense-label">🎬 Entertainment / hobbies</span>
+        <input class="expense-input" id="exp_ent" type="number" value="400" onchange="calc()">
+      </div>
+      <div class="expense-row">
+        <span class="expense-label">✈️ Travel / vacation (÷12)</span>
+        <input class="expense-input" id="exp_travel" type="number" value="500" onchange="calc()">
+      </div>
+      <div class="expense-row">
+        <span class="expense-label">🛍️ Shopping / misc</span>
+        <input class="expense-input" id="exp_misc" type="number" value="400" onchange="calc()">
+      </div>
+      <div class="expense-row">
+        <span class="expense-label">💸 Other</span>
+        <input class="expense-input" id="exp_other" type="number" value="0" onchange="calc()">
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Results -->
+  <div>
+    <div class="card" style="margin-bottom:16px">
+      <h2>Take-Home Summary</h2>
+
+      <div class="summary-grid">
+        <div class="summary-card accent">
+          <div class="label">Combined Gross</div>
+          <div class="value" id="out_gross">—</div>
+          <div class="sub" id="out_gross_sub"></div>
+        </div>
+        <div class="summary-card red">
+          <div class="label">Total Tax + FICA</div>
+          <div class="value" id="out_tax">—</div>
+          <div class="sub" id="out_tax_pct"></div>
+        </div>
+        <div class="summary-card green">
+          <div class="label">Take-Home (after tax)</div>
+          <div class="value" id="out_takehome">—</div>
+          <div class="sub" id="out_takehome_sub"></div>
+        </div>
+        <div class="summary-card orange">
+          <div class="label">Monthly Expenses</div>
+          <div class="value" id="out_expenses">—</div>
+          <div class="sub">all-in SF cost of living</div>
+        </div>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-card green" style="border-color:#6366f1; background:#1a1d35">
+          <div class="label">Monthly Savings</div>
+          <div class="value" id="out_savings" style="color:#a5b4fc">—</div>
+          <div class="sub" id="out_savings_annual"></div>
+        </div>
+        <div class="summary-card" style="border-color:#334155">
+          <div class="label">Savings Rate</div>
+          <div class="value" id="out_savings_rate">—</div>
+          <div class="sub">of take-home</div>
+        </div>
+      </div>
+
+      <div class="savings-bar-wrap">
+        <div class="bar-label">
+          <span>Expenses</span>
+          <span>Savings</span>
+        </div>
+        <div class="bar-bg">
+          <div class="bar-fill" id="savings_bar" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <h2>Monthly Cash Flow</h2>
+      <table class="breakdown-table" id="tbl_cashflow"></table>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <h2>Tax Breakdown — Per Person</h2>
+      <div class="section-title">You (Sayantani)</div>
+      <table class="breakdown-table" id="tbl_p1"></table>
+
+      <div class="section-title" id="p2_section_title" style="margin-top:18px">Husband</div>
+      <table class="breakdown-table" id="tbl_p2"></table>
+
+      <div class="section-title" style="margin-top:18px">Combined Federal (filed jointly)</div>
+      <table class="breakdown-table" id="tbl_combined"></table>
+    </div>
+
+    <div class="card">
+      <h2>What if Scenarios</h2>
+      <div id="scenarios"></div>
+
+      <div class="note">
+        <strong>Notes:</strong> Uses 2025 federal and California tax brackets. Standard deduction: $30,000 (MFJ federal) / $10,726 (CA MFJ). FICA: Social Security 6.2% up to $176,100/person + Medicare 1.45% + 0.9% on earned income over $200K (single) / $250K (MFJ). CA SDI: 1.1% (no wage cap). 401(k) contributions reduce federal + CA taxable income. SF has no city income tax. Healthcare industry roles may offer additional HSA/FSA benefits. Actual take-home may vary based on employer benefits deductions.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let viewMode = 'monthly';
+
+function setView(mode) {
+  viewMode = mode;
+  document.getElementById('btn-monthly').classList.toggle('active', mode === 'monthly');
+  document.getElementById('btn-annual').classList.toggle('active', mode === 'annual');
+  calc();
+}
+
+function setRent() {
+  const v = document.getElementById('apt_type').value;
+  if (v !== '0') {
+    document.getElementById('exp_rent').value = v;
+    calc();
+  }
+}
+
+function fmt(n, annual) {
+  if (annual) {
+    return '$' + Math.round(n).toLocaleString();
+  }
+  return '$' + Math.round(n / 12).toLocaleString();
+}
+
+function fmtK(n) {
+  if (Math.abs(n) >= 1000) return '$' + (n / 1000).toFixed(1) + 'K';
+  return '$' + Math.round(n).toLocaleString();
+}
+
+// --- Federal tax brackets 2025 MFJ ---
+const FED_MFJ = [
+  [23850,   0.10],
+  [96950,   0.12],
+  [206700,  0.22],
+  [394600,  0.24],
+  [501050,  0.32],
+  [751600,  0.35],
+  [Infinity,0.37],
+];
+const FED_SINGLE = [
+  [11925,   0.10],
+  [48475,   0.12],
+  [103350,  0.22],
+  [197300,  0.24],
+  [250525,  0.32],
+  [626350,  0.35],
+  [Infinity,0.37],
+];
+const STD_FED_MFJ   = 30000;
+const STD_FED_SINGLE = 14600;
+
+// CA 2025 MFJ
+const CA_MFJ = [
+  [20824,   0.01],
+  [49368,   0.02],
+  [77918,   0.04],
+  [108162,  0.06],
+  [136700,  0.08],
+  [698274,  0.093],
+  [837922,  0.103],
+  [1000000, 0.113],
+  [Infinity,0.123],
+];
+const CA_SINGLE = [
+  [10412,   0.01],
+  [24684,   0.02],
+  [38959,   0.04],
+  [54081,   0.06],
+  [68350,   0.08],
+  [349137,  0.093],
+  [418961,  0.103],
+  [1000000, 0.113],
+  [Infinity,0.123],
+];
+const STD_CA_MFJ    = 10726;
+const STD_CA_SINGLE = 5363;
+
+function calcBrackets(income, brackets, stdDed) {
+  const taxable = Math.max(0, income - stdDed);
+  let tax = 0, prev = 0;
+  for (const [limit, rate] of brackets) {
+    if (taxable <= prev) break;
+    const chunk = Math.min(taxable, limit) - prev;
+    tax += chunk * rate;
+    prev = limit;
+  }
+  return { tax, taxable };
+}
+
+function calcFICA(salary, filingMFJ, otherSalary) {
+  const SS_WAGE_BASE = 176100;
+  const ss = Math.min(salary, SS_WAGE_BASE) * 0.062;
+  const medBase = salary * 0.0145;
+  // Additional 0.9% Medicare: on combined wages over $250K (MFJ) or $200K (single)
+  const threshold = filingMFJ ? 250000 : 200000;
+  const combined = salary + (filingMFJ ? otherSalary : 0);
+  // Per-person withholding: employer withholds extra 0.9% on wages over $200K per person
+  const medExtra = Math.max(0, salary - 200000) * 0.009;
+  return { ss, medBase, medExtra, total: ss + medBase + medExtra };
+}
+
+function calcSDI(salary) {
+  return salary * 0.011; // CA SDI 1.1%, no wage cap
+}
+
+function buildTaxTable(label, gross, fedTax, caTax, fica, sdi, k401, netAnnual) {
+  const rows = [
+    ['Gross salary', gross, ''],
+    ['401(k) contribution', -k401, ''],
+    ['Federal income tax', -fedTax, ((fedTax/Math.max(1,gross))*100).toFixed(1)+'%'],
+    ['CA state income tax', -caTax, ((caTax/Math.max(1,gross))*100).toFixed(1)+'%'],
+    ['Social Security (6.2%)', -fica.ss, ''],
+    ['Medicare (1.45%)', -fica.medBase, ''],
+    ['Medicare extra (0.9%)', -fica.medExtra, fica.medExtra > 0 ? '' : '—'],
+    ['CA SDI (1.1%)', -sdi, ''],
+    ['Net take-home', netAnnual, ''],
+  ];
+  let html = `<thead><tr><th>Item</th><th class="num">Annual</th><th class="num">Monthly</th><th class="pct">% Gross</th></tr></thead><tbody>`;
+  for (const [name, val, pct] of rows) {
+    const isTotal = name === 'Net take-home';
+    const color = isTotal ? 'color:#34d399' : val < 0 ? 'color:#f87171' : '';
+    const pctStr = pct || (val !== 0 ? ((Math.abs(val)/Math.max(1,gross))*100).toFixed(1)+'%' : '');
+    html += `<tr style="${isTotal ? 'border-top:1px solid #2d3548' : ''}">
+      <td style="${color}">${name}</td>
+      <td class="num" style="${color}">${val >= 0 ? '' : ''}${val < 0 ? '-' : ''}$${Math.abs(Math.round(val)).toLocaleString()}</td>
+      <td class="num" style="${color}">${val < 0 ? '-' : ''}$${Math.abs(Math.round(val/12)).toLocaleString()}</td>
+      <td class="pct">${isTotal ? '' : pctStr}</td>
+    </tr>`;
+  }
+  html += '</tbody>';
+  return html;
+}
+
+function calc() {
+  const sal1   = parseFloat(document.getElementById('sal1').value)  || 0;
+  const sal2   = parseFloat(document.getElementById('sal2').value)  || 0;
+  const k401_1 = Math.min(parseFloat(document.getElementById('k401_1').value) || 0, sal1);
+  const k401_2 = Math.min(parseFloat(document.getElementById('k401_2').value) || 0, sal2);
+  const filing = document.getElementById('filing').value;
+  const isMFJ  = filing === 'mfj';
+
+  const expIds = ['exp_rent','exp_grocery','exp_dining','exp_transport','exp_utilities',
+                  'exp_internet','exp_phone','exp_health','exp_ent','exp_travel','exp_misc','exp_other'];
+  const totalExpMo = expIds.reduce((s, id) => s + (parseFloat(document.getElementById(id).value) || 0), 0);
+
+  // --- Person 1 individual taxes ---
+  const taxable1_fed_ind = Math.max(0, sal1 - k401_1 - STD_FED_SINGLE);
+  const fed1_ind = calcBrackets(sal1 - k401_1, FED_SINGLE, STD_FED_SINGLE).tax;
+  const ca1 = calcBrackets(sal1 - k401_1, CA_SINGLE, STD_CA_SINGLE).tax;
+  const fica1 = calcFICA(sal1, isMFJ, sal2);
+  const sdi1 = calcSDI(sal1);
+  const net1_individual = sal1 - k401_1 - fed1_ind - ca1 - fica1.total - sdi1;
+
+  // --- Person 2 individual taxes ---
+  const fed2_ind = calcBrackets(sal2 - k401_2, FED_SINGLE, STD_FED_SINGLE).tax;
+  const ca2 = calcBrackets(sal2 - k401_2, CA_SINGLE, STD_CA_SINGLE).tax;
+  const fica2 = calcFICA(sal2, isMFJ, sal1);
+  const sdi2 = calcSDI(sal2);
+  const net2_individual = sal2 - k401_2 - fed2_ind - ca2 - fica2.total - sdi2;
+
+  // --- Combined federal (MFJ) ---
+  const combinedIncome = sal1 + sal2;
+  const combined401k = k401_1 + k401_2;
+  let fedCombined, caCombined;
+  if (isMFJ) {
+    fedCombined = calcBrackets(combinedIncome - combined401k, FED_MFJ, STD_FED_MFJ).tax;
+    caCombined  = calcBrackets(combinedIncome - combined401k, CA_MFJ,  STD_CA_MFJ).tax;
+  } else {
+    fedCombined = fed1_ind + fed2_ind;
+    caCombined  = ca1 + ca2;
+  }
+
+  const totalFICA   = fica1.total + fica2.total;
+  const totalSDI    = sdi1 + sdi2;
+  const totalTax    = fedCombined + caCombined + totalFICA + totalSDI;
+  const totalNetAnn = combinedIncome - combined401k - totalTax;
+  const totalNetMo  = totalNetAnn / 12;
+  const savingsMo   = totalNetMo - totalExpMo;
+  const savingsRate = totalNetMo > 0 ? Math.max(0, savingsMo / totalNetMo * 100) : 0;
+  const effectivePct = combinedIncome > 0 ? (totalTax / combinedIncome * 100).toFixed(1) : 0;
+
+  const isAnn = viewMode === 'annual';
+  const mul = isAnn ? 1 : 1/12;
+  const suffix = isAnn ? '/yr' : '/mo';
+
+  // Update summary cards
+  document.getElementById('out_gross').textContent = fmtK(combinedIncome * mul);
+  document.getElementById('out_gross_sub').textContent = `${isAnn ? 'per year' : 'per month'} combined`;
+  document.getElementById('out_tax').textContent = fmtK(totalTax * mul);
+  document.getElementById('out_tax_pct').textContent = `${effectivePct}% effective rate`;
+  document.getElementById('out_takehome').textContent = fmtK(totalNetAnn * mul);
+  document.getElementById('out_takehome_sub').textContent = `after all taxes + 401(k)`;
+  document.getElementById('out_expenses').textContent = fmtK(totalExpMo * (isAnn ? 12 : 1));
+  document.getElementById('out_savings').textContent = fmtK(savingsMo * (isAnn ? 12 : 1));
+  document.getElementById('out_savings_annual').textContent = isAnn ? 'per year' : `$${Math.round(savingsMo * 12).toLocaleString()}/yr`;
+  document.getElementById('out_savings_rate').textContent = savingsRate.toFixed(1) + '%';
+  document.getElementById('savings_bar').style.width = savingsRate.toFixed(1) + '%';
+
+  // Monthly Cash Flow table
+  const expLabels = [
+    ['exp_rent',      '🏠 Rent'],
+    ['exp_grocery',   '🛒 Groceries'],
+    ['exp_dining',    '🍽️ Dining out'],
+    ['exp_transport', '🚌 Transport'],
+    ['exp_utilities', '⚡ Utilities'],
+    ['exp_internet',  '🌐 Internet'],
+    ['exp_phone',     '📱 Phone'],
+    ['exp_health',    '🏥 Health insurance'],
+    ['exp_ent',       '🎬 Entertainment'],
+    ['exp_travel',    '✈️ Travel'],
+    ['exp_misc',      '🛍️ Shopping / misc'],
+    ['exp_other',     '💸 Other'],
+  ];
+  let cfhtml = `<thead><tr><th>Item</th><th class="num">Monthly</th><th class="num">Annual</th></tr></thead><tbody>`;
+  cfhtml += `<tr style="border-bottom:1px solid #2d3548"><td style="color:#a5b4fc;font-weight:600">Combined take-home (after tax + 401k)</td><td class="num" style="color:#a5b4fc;font-weight:600">$${Math.round(totalNetMo).toLocaleString()}</td><td class="num" style="color:#a5b4fc;font-weight:600">$${Math.round(totalNetAnn).toLocaleString()}</td></tr>`;
+  for (const [id, label] of expLabels) {
+    const val = parseFloat(document.getElementById(id).value) || 0;
+    if (val === 0) continue;
+    cfhtml += `<tr><td style="color:#94a3b8;padding-left:12px">${label}</td><td class="num" style="color:#f87171">-$${Math.round(val).toLocaleString()}</td><td class="num" style="color:#f87171">-$${Math.round(val*12).toLocaleString()}</td></tr>`;
+  }
+  cfhtml += `<tr style="border-top:1px solid #2d3548"><td style="color:#94a3b8;font-weight:600">Total expenses</td><td class="num" style="color:#f87171;font-weight:600">-$${Math.round(totalExpMo).toLocaleString()}</td><td class="num" style="color:#f87171;font-weight:600">-$${Math.round(totalExpMo*12).toLocaleString()}</td></tr>`;
+  const liquidColor = savingsMo >= 0 ? '#34d399' : '#f87171';
+  cfhtml += `<tr style="border-top:2px solid #2d3548"><td style="color:${liquidColor};font-weight:700">💰 Liquid savings</td><td class="num" style="color:${liquidColor};font-weight:700">$${Math.round(savingsMo).toLocaleString()}</td><td class="num" style="color:${liquidColor};font-weight:700">$${Math.round(savingsMo*12).toLocaleString()}</td></tr>`;
+  cfhtml += `<tr><td style="color:#94a3b8">🏦 401(k) retirement savings</td><td class="num" style="color:#fbbf24">+$${Math.round(combined401k/12).toLocaleString()}</td><td class="num" style="color:#fbbf24">+$${Math.round(combined401k).toLocaleString()}</td></tr>`;
+  const totalSavMo = savingsMo + combined401k/12;
+  const totalSavCol = totalSavMo >= 0 ? '#a5b4fc' : '#f87171';
+  cfhtml += `<tr style="border-top:1px solid #2d3548"><td style="color:${totalSavCol};font-weight:700">✅ Total savings (liquid + 401k)</td><td class="num" style="color:${totalSavCol};font-weight:700">$${Math.round(totalSavMo).toLocaleString()}</td><td class="num" style="color:${totalSavCol};font-weight:700">$${Math.round(totalSavMo*12).toLocaleString()}</td></tr>`;
+  cfhtml += '</tbody>';
+  document.getElementById('tbl_cashflow').innerHTML = cfhtml;
+
+  // Tax tables
+  const net1_mfj = isMFJ ? (sal1 - k401_1 - (fedCombined * (sal1/(Math.max(1,combinedIncome)))) - ca1 - fica1.total - sdi1) : net1_individual;
+  document.getElementById('tbl_p1').innerHTML = buildTaxTable('You', sal1, isMFJ ? fedCombined*(sal1/Math.max(1,combinedIncome)) : fed1_ind, ca1, fica1, sdi1, k401_1, isMFJ ? (sal1 - k401_1 - fedCombined*(sal1/Math.max(1,combinedIncome)) - ca1 - fica1.total - sdi1) : net1_individual);
+
+  const p2Section = document.getElementById('p2_section_title');
+  const tbl2 = document.getElementById('tbl_p2');
+  if (sal2 > 0) {
+    p2Section.style.display = '';
+    tbl2.style.display = '';
+    tbl2.innerHTML = buildTaxTable('Husband', sal2, isMFJ ? fedCombined*(sal2/Math.max(1,combinedIncome)) : fed2_ind, ca2, fica2, sdi2, k401_2, isMFJ ? (sal2 - k401_2 - fedCombined*(sal2/Math.max(1,combinedIncome)) - ca2 - fica2.total - sdi2) : net2_individual);
+  } else {
+    p2Section.style.display = 'none';
+    tbl2.style.display = 'none';
+  }
+
+  // Combined table
+  const combinedRows = [
+    ['Combined gross', combinedIncome],
+    ['Combined 401(k)', -combined401k],
+    ['Federal income tax (' + (isMFJ ? 'MFJ' : 'separate') + ')', -fedCombined],
+    ['CA state income tax', -caCombined],
+    ['FICA (SS + Medicare)', -totalFICA],
+    ['CA SDI', -totalSDI],
+    ['Net take-home', totalNetAnn],
+  ];
+  let chtml = `<thead><tr><th>Item</th><th class="num">Annual</th><th class="num">Monthly</th></tr></thead><tbody>`;
+  for (const [name, val] of combinedRows) {
+    const isTotal = name === 'Net take-home';
+    const color = isTotal ? 'color:#34d399' : val < 0 ? 'color:#f87171' : '';
+    chtml += `<tr><td style="${color}">${name}</td><td class="num" style="${color}">${val<0?'-':''}$${Math.abs(Math.round(val)).toLocaleString()}</td><td class="num" style="${color}">${val<0?'-':''}$${Math.abs(Math.round(val/12)).toLocaleString()}</td></tr>`;
+  }
+  chtml += '</tbody>';
+  document.getElementById('tbl_combined').innerHTML = chtml;
+
+  // Scenarios
+  const scenarios = [
+    { label: 'If you earn $180K', s1: 180000, s2: sal2 },
+    { label: 'If you earn $220K', s1: 220000, s2: sal2 },
+    { label: 'If you earn $250K', s1: 250000, s2: sal2 },
+    { label: 'If both earn $150K', s1: 150000, s2: 150000 },
+    { label: 'If both earn $200K', s1: 200000, s2: 200000 },
+  ];
+  let shtml = `<table class="breakdown-table"><thead><tr><th>Scenario</th><th class="num">Take-Home/mo</th><th class="num">Savings/mo</th><th class="pct">Rate</th></tr></thead><tbody>`;
+  for (const sc of scenarios) {
+    const scFed = isMFJ ? calcBrackets(sc.s1+sc.s2-combined401k, FED_MFJ, STD_FED_MFJ).tax : calcBrackets(sc.s1-k401_1, FED_SINGLE, STD_FED_SINGLE).tax + calcBrackets(sc.s2-k401_2, FED_SINGLE, STD_FED_SINGLE).tax;
+    const scCA  = isMFJ ? calcBrackets(sc.s1+sc.s2-combined401k, CA_MFJ, STD_CA_MFJ).tax : calcBrackets(sc.s1-k401_1, CA_SINGLE, STD_CA_SINGLE).tax + calcBrackets(sc.s2-k401_2, CA_SINGLE, STD_CA_SINGLE).tax;
+    const scFica1 = calcFICA(sc.s1, isMFJ, sc.s2);
+    const scFica2 = calcFICA(sc.s2, isMFJ, sc.s1);
+    const scNet = (sc.s1+sc.s2 - combined401k - scFed - scCA - scFica1.total - scFica2.total - calcSDI(sc.s1) - calcSDI(sc.s2)) / 12;
+    const scSav = scNet - totalExpMo;
+    const scRate = scNet > 0 ? Math.max(0, scSav/scNet*100) : 0;
+    const col = scSav >= 0 ? '#34d399' : '#f87171';
+    shtml += `<tr><td>${sc.label}</td><td class="num">$${Math.round(scNet).toLocaleString()}</td><td class="num" style="color:${col}">$${Math.round(scSav).toLocaleString()}</td><td class="pct">${scRate.toFixed(0)}%</td></tr>`;
+  }
+  shtml += '</tbody></table>';
+  document.getElementById('scenarios').innerHTML = shtml;
+}
+
+document.getElementById('apt_type').addEventListener('change', function() {
+  if (this.value !== '0') {
+    document.getElementById('exp_rent').value = this.value;
+    calc();
+  }
+});
+
+calc();
+</script>
+</body>
+</html>
