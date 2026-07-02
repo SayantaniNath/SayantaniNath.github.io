@@ -894,35 +894,37 @@
 
     <div class="project-card fade-in">
       <div class="project-top">
-        <div class="project-icon">📈</div>
-        <span class="project-status status-building">
-          <span class="status-dot"></span>In Progress
+        <div class="project-icon">🏥</div>
+        <span class="project-status status-live">
+          <span class="status-dot"></span>Phase 1 Complete
         </span>
       </div>
-      <div class="project-title">FinFlow — Financial Data Engineering Platform</div>
+      <div class="project-title">AWS ClinicalFlow — Healthcare Data Lakehouse</div>
       <div class="project-desc">
-        Ingestion and analytics platform for real-time crypto and stock market data.
-        Pulls live prices from CoinGecko and financial APIs, normalizes and date-partitions
-        records into JSONL, then processes downstream with PySpark for analytical queries.
-        Demonstrates full DE lifecycle on real financial data.
+        HIPAA Safe Harbor de-identification pipeline on AWS — tokenizes patient IDs, buckets ages,
+        and strips 14 PHI columns across 64K synthetic EHR records. Iceberg v2 silver layer with
+        17-check Great Expectations validation, z-score anomaly detection in Spark SQL on EMR
+        Serverless, and KMS-encrypted CloudTrail audit trail for full compliance coverage.
       </div>
       <div class="arch-flow">
-        <span class="hl">CoinGecko API</span><span class="ar">→</span>
-        <span class="hl">Python Ingestion</span><span class="ar">→</span>
-        <span class="hl">JSONL Partitioned Store</span><span class="ar">→</span>
-        <span class="hl">PySpark Analytics</span><span class="ar">→</span>
-        <span class="hl">Reporting</span>
+        <span class="hl">Synthea EHR</span><span class="ar">→</span>
+        <span class="hl">S3 + KMS</span><span class="ar">→</span>
+        <span class="hl">Glue ETL (HIPAA de-id)</span><span class="ar">→</span>
+        <span class="hl">Iceberg Silver</span><span class="ar">→</span>
+        <span class="hl">EMR Anomaly Detection</span>
       </div>
       <div class="project-tags">
-        <span class="tag">Python</span>
+        <span class="tag">AWS Glue</span>
+        <span class="tag">EMR Serverless</span>
+        <span class="tag">S3</span>
+        <span class="tag">Apache Iceberg</span>
         <span class="tag">PySpark</span>
-        <span class="tag">Pandas</span>
-        <span class="tag">REST APIs</span>
-        <span class="tag">JSONL</span>
-        <span class="tag">Apache Kafka</span>
+        <span class="tag">HIPAA</span>
+        <span class="tag">GDPR</span>
+        <span class="tag">Great Expectations</span>
       </div>
       <div class="project-links">
-        <a href="https://github.com/SayantaniNath" target="_blank" class="project-link">↗ View on GitHub</a>
+        <a href="https://github.com/SayantaniNath/aws-healthcare-datalake" target="_blank" class="project-link">↗ View on GitHub</a>
       </div>
     </div>
 
@@ -997,6 +999,7 @@
         <span class="skill-tag">Databricks</span>
         <span class="skill-tag">GCP / Vertex AI</span>
         <span class="skill-tag">Delta Lake</span>
+        <span class="skill-tag">Apache Iceberg</span>
       </div>
     </div>
     <div class="skill-category fade-in">
